@@ -1,60 +1,131 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "deck.h"
-
-void print_deck(const deck_node_t *deck)
+/**
+ * aux_num_fun - turn into integer card value
+ * @head_tmp1: pointer to the list
+ * Return: integer rep
+ **/
+int aux_num_fun(deck_node_t *head_tmp1)
 {
-	size_t i;
-	char kinds[4] = {'S', 'H', 'C', 'D'};
+	int aux_num, j;
+	int num[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+	char val[13] = {'A', '2', '3', '4', '5', '6', '7',
+		'8', '9', '1', 'J', 'Q', 'K'};
 
-	i = 0;
-	while (deck)
+	for (j = 0; j < 13; j++)
 	{
-		if (i)
-			printf(", ");
-		printf("{%s, %c}", deck->card->value, kinds[deck->card->kind]);
-		if (i == 12)
-			printf("\n");
-		i = (i + 1) % 13;
-		deck = deck->next;
+		if (head_tmp1->card->value[0] == val[j])
+			aux_num = num[j];
+	}
+
+	return (aux_num);
+}
+/**
+ * num_sort - sorts a doubly linked list of integers, 4 stages
+ * @list: pointer to the list head
+ * Return: no return
+ **/
+void num_sort(deck_node_t **list)
+{
+	deck_node_t *head_tmp1, *head_tmp2, *aux1, *aux2;
+	int flag = 0, i, aux_num1, aux_num2;
+	unsigned int k;
+
+	head_tmp1 = *list;
+	head_tmp2 = *list;
+	for (i = 0; i < 4; i++)
+	{ k =  head_tmp1->card->kind;
+		while (head_tmp1->next && head_tmp1->next->card->kind == k)
+		{
+			aux_num1 = aux_num_fun(head_tmp1);
+			aux_num2 = aux_num_fun(head_tmp1->next);
+			flag = 0;
+			head_tmp2 = head_tmp1;
+			while (head_tmp2 && head_tmp2->card->kind == k && aux_num1 > aux_num2)
+			{
+				aux1 = head_tmp2;
+				aux2 = head_tmp2->next;
+				aux1->next = aux2->next;
+				if (aux2->next)
+					aux2->next->prev = aux1;
+				aux2->prev = aux1->prev;
+				aux2->next = aux1;
+				aux1->prev = aux2;
+				if (aux2->prev)
+					aux2->prev->next = aux2;
+				head_tmp2 = aux2->prev;
+				if (!aux2->prev)
+					*list = aux2;
+				flag = 1;
+				if (!head_tmp2)
+					break;
+				aux_num1 = aux_num_fun(head_tmp2);
+				aux_num2 = aux_num_fun(head_tmp2->next);
+			}
+			if (flag == 0)
+				head_tmp1 = head_tmp1->next;
+		}
+		head_tmp1 = head_tmp1->next;
 	}
 }
-
-deck_node_t *init_deck(const card_t cards[52])
+/**
+ * kind_sort - sorts a doubly linked list of integers
+ * in ascending order using the Insertion sort ailgorithm
+ * @list: pointer to the list head
+ * Return: no return
+ **/
+void kind_sort(deck_node_t **list)
 {
-	deck_node_t *deck;
-	deck_node_t *node;
-	size_t i;
+	deck_node_t *head_tmp1, *head_tmp2, *aux1, *aux2;
+	int flag;
 
-	i = 52;
-	deck = NULL;
-	while (i--)
+	if (list)
 	{
-		node = malloc(sizeof(*node));
-		if (!node)
-			return (NULL);
-		node->card = &cards[i];
-		node->next = deck;
-		node->prev = NULL;
-		if (deck)
-			deck->prev = node;
-		deck = node;
+		head_tmp1 = *list;
+		head_tmp2 = *list;
+		while (list && head_tmp1->next)
+		{
+			if (head_tmp1->next)
+			{
+				flag = 0;
+				head_tmp2 = head_tmp1;
+				while (head_tmp2 && head_tmp2->card->kind > head_tmp2->next->card->kind)
+				{
+					aux1 = head_tmp2;
+					aux2 = head_tmp2->next;
+					aux1->next = aux2->next;
+					if (aux2->next)
+						aux2->next->prev = aux1;
+					if (aux2)
+					{
+						aux2->prev = aux1->prev;
+						aux2->next = aux1;
+					}
+					if (aux1)
+						aux1->prev = aux2;
+					if (aux2->prev)
+						aux2->prev->next = aux2;
+					head_tmp2 = aux2->prev;
+					if (!aux2->prev)
+						*list = aux2;
+					flag = 1;
+				}
+			}
+			if (flag == 0)
+				head_tmp1 = head_tmp1->next;
+		}
 	}
-	return (deck);
 }
-
-int main(void)
+/**
+ * sort_deck - sorts a deck of cards
+ * @deck: ponter to the deck
+ * Return: no return
+ *
+ **/
+void sort_deck(deck_node_t **deck)
 {
-	card_t cards[52] = {
-		{"Jack", CLUB}, {"4", HEART}, {"3", HEART}, {"3", DIAMOND}, {"Queen", HEART}, {"5", HEART}, {"5", SPADE}, {"10", HEART}, {"6", HEART}, {"5", DIAMOND}, {"6", SPADE}, {"9", HEART}, {"7", DIAMOND}, {"Jack", SPADE}, {"Ace", DIAMOND}, {"9", CLUB}, {"Jack", DIAMOND}, {"7", SPADE}, {"King", DIAMOND}, {"10", CLUB}, {"King", SPADE}, {"8", CLUB}, {"9", SPADE}, {"6", CLUB}, {"Ace", CLUB}, {"3", SPADE}, {"8", SPADE}, {"9", DIAMOND}, {"2", HEART}, {"4", DIAMOND}, {"6", DIAMOND}, {"3", CLUB}, {"Queen", CLUB}, {"10", SPADE}, {"8", DIAMOND}, {"8", HEART}, {"Ace", SPADE}, {"Jack", HEART}, {"2", CLUB}, {"4", SPADE}, {"2", SPADE}, {"2", DIAMOND}, {"King", CLUB}, {"Queen", SPADE}, {"Queen", DIAMOND}, {"7", CLUB}, {"7", HEART}, {"5", CLUB}, {"10", DIAMOND}, {"4", CLUB}, {"King", HEART}, {"Ace", HEART},
-	};
-	deck_node_t *deck;
-
-	deck = init_deck(cards);
-	print_deck(deck);
-	printf("\n");
-	sort_deck(&deck);
-	printf("\n");
-	print_deck(deck);
-	return (0);
+	if (deck)
+	{
+		kind_sort(deck);
+		num_sort(deck);
+	}
 }
