@@ -1,73 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "sort.h"
 
 /**
- * quick_sort - function that sorts an array of integers
- *              in ascending order using the Quick sort algorithm
- * @array: array
- * @size: array's size
- * Return: void
+ * create_listint - Creates a doubly linked list from an array of integers
+ *
+ * @array: Array to convert to a doubly linked list
+ * @size: Size of the array
+ *
+ * Return: Pointer to the first element of the created list. NULL on failure
  */
-void quick_sort(int *array, size_t size)
+listint_t *create_listint(const int *array, size_t size)
 {
-	if (array == NULL || size < 2)
-		return;
+    listint_t *list;
+    listint_t *node;
+    int *tmp;
 
-	quick_s(array, 0, size - 1, size);
+    list = NULL;
+    while (size--)
+    {
+        node = malloc(sizeof(*node));
+        if (!node)
+            return (NULL);
+        tmp = (int *)&node->n;
+        *tmp = array[size];
+        node->next = list;
+        node->prev = NULL;
+        list = node;
+        if (list->next)
+            list->next->prev = list;
+    }
+    return (list);
 }
 
 /**
- * partition - partition
- * @array: array
- * @lo: lower
- * @hi: higher
- * @size: array's size
- * Return: i
+ * main - Entry point
+ *
+ * Return: Always 0
  */
-int partition(int *array, int lo, int hi, size_t size)
+int main(void)
 {
-	int i = lo - 1, j = lo;
-	int pivot = array[hi], aux = 0;
+    listint_t *list;
+    int array[] = {19, 48, 99, 71, 13, 52, 96, 73, 86, 7};
+    size_t n = sizeof(array) / sizeof(array[0]);
 
-	for (; j < hi; j++)
-	{
-		if (array[j] < pivot)
-		{
-			i++;
-			if (array[i] != array[j])
-			{
-				aux = array[i];
-				array[i] = array[j];
-				array[j] = aux;
-				print_array(array, size);
-			}
-		}
-	}
-	if (array[i + 1] != array[hi])
-	{
-		aux = array[i + 1];
-		array[i + 1] = array[hi];
-		array[hi] = aux;
-		print_array(array, size);
-	}
-	return (i + 1);
-}
-
-/**
- * quick_s - quick sort
- * @array: given array
- * @lo: lower
- * @hi:higher
- * @size: array's size
- * Return: void
- */
-void quick_s(int *array, int lo, int hi, size_t size)
-{
-	int pivot;
-
-	if (lo < hi)
-	{
-		pivot = partition(array, lo, hi, size);
-		quick_s(array, lo, pivot - 1, size);
-		quick_s(array, pivot + 1, hi, size);
-	}
+    list = create_listint(array, n);
+    if (!list)
+        return (1);
+    print_list(list);
+    printf("\n");
+    cocktail_sort_list(&list);
+    printf("\n");
+    print_list(list);
+    return (0);
 }
