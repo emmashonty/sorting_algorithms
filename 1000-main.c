@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "deck.h"
 /**
  * aux_num_fun - turn into integer card value
