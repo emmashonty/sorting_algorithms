@@ -1,89 +1,73 @@
 #include "sort.h"
 
 /**
-  * cocktail_sort_list - Sorts a doubly linked list
-  * of integers in ascending order using the
-  * Cocktail Shaker sort algorithm.
-  * @list: The doubly linked list to apply the cocktail sort
-  *
-  * Return: Nothing!
-  */
-void cocktail_sort_list(listint_t **list)
+ * quick_sort - function that sorts an array of integers
+ *              in ascending order using the Quick sort algorithm
+ * @array: array
+ * @size: array's size
+ * Return: void
+ */
+void quick_sort(int *array, size_t size)
 {
-	listint_t *curr = NULL, *left_limit = NULL, *right_limit = NULL;
-	int cycle_type = INCREMENT;
-
-	if (!list || !(*list) || !(*list)->next)
+	if (array == NULL || size < 2)
 		return;
 
-	curr = *list;
-	left_limit = curr;
-	right_limit = get_dlistint_lelem(*list);
+	quick_s(array, 0, size - 1, size);
+}
 
-	while (left_limit != right_limit)
+/**
+ * partition - partition
+ * @array: array
+ * @lo: lower
+ * @hi: higher
+ * @size: array's size
+ * Return: i
+ */
+int partition(int *array, int lo, int hi, size_t size)
+{
+	int i = lo - 1, j = lo;
+	int pivot = array[hi], aux = 0;
+
+	for (; j < hi; j++)
 	{
-		if (curr->n == curr->next->n)
-			break;
-		else if (curr->n > curr->next->n && cycle_type == INCREMENT)
-			swap_nodes(list, curr), print_list(*list);
-		else if (curr->next->n < curr->n && cycle_type == DECREMENT)
-			swap_nodes(list, curr), curr = curr->prev, print_list(*list);
-		else if (cycle_type == INCREMENT)
-			curr = curr->next;
-		else if (cycle_type == DECREMENT)
-			curr = curr->prev;
-
-		if (cycle_type == DECREMENT && curr->next == left_limit)
+		if (array[j] < pivot)
 		{
-			cycle_type = INCREMENT;
-			curr = curr->next;
-		}
-
-		if (cycle_type == INCREMENT && curr->prev == right_limit)
-		{
-			right_limit = right_limit->prev;
-			cycle_type = DECREMENT;
-			curr = curr->prev;
+			i++;
+			if (array[i] != array[j])
+			{
+				aux = array[i];
+				array[i] = array[j];
+				array[j] = aux;
+				print_array(array, size);
+			}
 		}
 	}
+	if (array[i + 1] != array[hi])
+	{
+		aux = array[i + 1];
+		array[i + 1] = array[hi];
+		array[hi] = aux;
+		print_array(array, size);
+	}
+	return (i + 1);
 }
 
 /**
-  * swap_nodes - Swap two nodes of a doubly linked list
-  * @list: The double linked lists that contains the nodes
-  * @node: The node to swap with the next node
-  *
-  * Return: Nothing!
-  */
-void swap_nodes(listint_t **list, listint_t *node)
+ * quick_s - quick sort
+ * @array: given array
+ * @lo: lower
+ * @hi:higher
+ * @size: array's size
+ * Return: void
+ */
+void quick_s(int *array, int lo, int hi, size_t size)
 {
-	node->next->prev = node->prev;
+	int pivot;
 
-	if (node->next->prev)
-		node->prev->next = node->next;
-	else
-		*list = node->next;
-
-	node->prev = node->next;
-	node->next = node->next->next;
-	node->prev->next = node;
-
-	if (node->next)
-		node->next->prev = node;
-}
-
-/**
-  * get_dlistint_lelem - Counts the number of elements in a doubly linked list
-  * @h: The double linked list to count
-  *
-  * Return: Number of elements in the doubly linked list
-  */
-listint_t *get_dlistint_lelem(listint_t *h)
-{
-	listint_t *curr = h;
-
-	while (curr->next != NULL)
-		curr = curr->next;
-
-	return (curr);
+	if (lo < hi)
+	{
+		pivot = partition(array, lo, hi, size);
+		quick_s(array, lo, pivot - 1, size);
+		quick_s(array, pivot + 1, hi, size);
+	}
 }
